@@ -45,6 +45,8 @@ def write_to_csv(file_list, csv_path):
             csvwriter.writerow([os.path.dirname(file), os.path.basename(file)])
 
 def main():
+    # These are the working directories. 'directory' is the input and 'csv_path' is where the csv file is written.
+    # Must use the double backslash or error city.  
     directory = 'c:\\temp\\input'
     csv_path = 'c:\\temp\\output\\output.csv'
 
