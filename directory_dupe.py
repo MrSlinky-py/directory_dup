@@ -4,46 +4,55 @@ import csv
 from collections import defaultdict
 
 def get_file_hash(file_path):
-    """Generate a hash for a file."""
-    hasher = hashlib.md5()
-    with open(file_path, 'rb') as f:
+   # This only looks in the same folder for duplicates and not sub- or across folders
+   """Generate a hash for a file."""
+   hasher = hashlib.md5()
+   with open(file_path, 'rb') as f:
         buf = f.read()
         hasher.update(buf)
-    return hasher.hexdigest()
+        return hasher.hexdigest()
 
 def sort_files(directory):
-    """Sort files in a directory by name."""
-    files = os.listdir(directory)
-    files.sort()
-    return files
+    """Recursively sort files in a directory by name."""
+    file_list = []
+    for root, _, files in os.walk(directory):
+        for file in files:
+            file_list.append(os.path.join(root, file))
+    file_list.sort()
+    return file_list
 
 def find_duplicates(directory):
-    """Find duplicate files in a directory."""
-    files = os.listdir(directory)
+    """Recursively find duplicate files in a directory."""
     hash_map = defaultdict(list)
-
-    for file in files:
-        file_path = os.path.join(directory, file)
-        if os.path.isfile(file_path):
-            file_hash = get_file_hash(file_path)
-            hash_map[file_hash].append(file_path)
-
+    
+    for root, _, files in os.walk(directory):
+        for file in files:
+            file_path = os.path.join(root, file)
+            if os.path.isfile(file_path):
+                file_hash = get_file_hash(file_path)
+                hash_map[file_hash].append(file_path)
+    
     duplicates = {hash: paths for hash, paths in hash_map.items() if len(paths) > 1}
     return duplicates
 
 def write_to_csv(file_list, csv_path):
+    # The file must not exist. If you want to append, change the 'w' to 'a' in the "open" statement.
     """Write the list of files to a CSV file."""
     with open(csv_path, 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerow(['File Path', 'File Name'])
         for file in file_list:
-            csvwriter.writerow([os.path.realpath(file), file])
+            csvwriter.writerow([os.path.dirname(file), os.path.basename(file)])
 
 def main():
-    directory = 'c:\\drivers'
-    csv_path = 'c:\\temp\output\output.csv'
+    directory = 'c:\\temp\\input'
+    csv_path = 'c:\\temp\\output\\output.csv'
+
+    # Get and print sorted files
     sorted_files = sort_files(directory)
     print("Sorted files:", sorted_files)
+
+    # Find and print duplicates
     duplicates = find_duplicates(directory)
     if duplicates:
         print("Duplicate files found:")
@@ -54,6 +63,7 @@ def main():
     else:
         print("No duplicate files found.")
 
+    # Write sorted files to CSV
     write_to_csv(sorted_files, csv_path)
     print(f"File list written to {csv_path}")
 
