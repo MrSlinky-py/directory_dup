@@ -37,16 +37,15 @@ def find_duplicates(directory):
 
 def write_to_csv(file_list, csv_path):
     # The file must not exist. If you want to append, change the 'w' to 'a' in the "open" statement.
+    # Writes the file path, file name, and file hash for later sorting against duplicates in other folders.
     """Write the list of files to a CSV file."""
     with open(csv_path, 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile)
-        csvwriter.writerow(['File Path', 'File Name'])
+        csvwriter.writerow(['File Path', 'File Name', 'File Hash'])
         for file in file_list:
-            csvwriter.writerow([os.path.dirname(file), os.path.basename(file)])
+            csvwriter.writerow([os.path.dirname(file), os.path.basename(file), get_file_hash(file)])
 
 def main():
-    # These are the working directories. 'directory' is the input and 'csv_path' is where the csv file is written.
-    # Must use the double backslash or error city.  
     directory = 'c:\\temp\\input'
     csv_path = 'c:\\temp\\output\\output.csv'
 
