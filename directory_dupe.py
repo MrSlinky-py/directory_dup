@@ -4,8 +4,11 @@ import csv
 from collections import defaultdict
 
 def get_file_hash(file_path):
-   # This only looks in the same folder for duplicates and not sub- or across folders
-   """Generate a hash for a file."""
+   """Generate a hash for a file, but skip anything larger than 100MB."""
+   file_size = os.path.getsize(file_path)
+   if file_size > 100 * 1024 * 1024: # 100MB in bytes or 104,857,600 bytes
+       return None # Skip the file
+   
    hasher = hashlib.md5()
    with open(file_path, 'rb') as f:
         buf = f.read()
@@ -22,7 +25,7 @@ def sort_files(directory):
     return file_list
 
 def find_duplicates(directory):
-    """Recursively find duplicate files in a directory."""
+    """Recursively find duplicate files in a directories.  This compares actual file contents and not just file names. It will find files that are identical but differently named i.e. file(1).pdf and file.pdf"""
     hash_map = defaultdict(list)
     
     for root, _, files in os.walk(directory):
